@@ -2,54 +2,91 @@
 
 ## Dados Utilizados
 
-Descreva se usou os arquivos da pasta `data`, por exemplo:
 
 | Arquivo | Formato | Utilização no Agente |
 |---------|---------|---------------------|
 | `historico_atendimento.csv` | CSV | Contextualizar interações anteriores |
-| `perfil_investidor.json` | JSON | Personalizar recomendações |
+| `perfil_investidor.json` | JSON | Personalizar recomendações e explicações |
 | `produtos_financeiros.json` | JSON | Sugerir produtos adequados ao perfil |
 | `transacoes.csv` | CSV | Analisar padrão de gastos do cliente |
-
-> [!TIP]
-> **Quer um dataset mais robusto?** Você pode utilizar datasets públicos do [Hugging Face](https://huggingface.co/datasets) relacionados a finanças, desde que sejam adequados ao contexto do desafio.
 
 ---
 
 ## Adaptações nos Dados
 
-> Você modificou ou expandiu os dados mockados? Descreva aqui.
+Os dados mockados foram adaptados para:
+Separar receitas e despesas por categoria.
+Incluir metas financeiras com valor, prazo e prioridade.
+Permitir simulação de crescimento patrimonial com base em taxas fornecidas pelo usuário.
+Registrar histórico de simulações para acompanhamento de progresso.
 
-[Sua descrição aqui]
+Exemplo de meta financeira no JSON:
 
----
+{
+  "meta": "Quitar financiamento da casa",
+  "valor_total": 120000,
+  "valor_atual": 45000,
+  "prazo_meses": 36,
+  "prioridade": "Alta"
+}
 
 ## Estratégia de Integração
 
 ### Como os dados são carregados?
 > Descreva como seu agente acessa a base de conhecimento.
 
-[ex: Os JSON/CSV são carregados no início da sessão e incluídos no contexto do prompt]
+Os arquivos CSV e JSON são carregados no início da sessão em Python, utilizando:
+- pandas para CSV
+- json para JSON
+
+Os dados são transformados em estruturas manipuláveis para:
+- Cálculo de saldo mensal
+- Projeção de metas financeiras
+- Simulação de investimentos
+- Análise do padrão de gastos
 
 ### Como os dados são usados no prompt?
-> Os dados vão no system prompt? São consultados dinamicamente?
 
-[Sua descrição aqui]
+Os dados são utilizados de duas formas:
+Consulta dinâmica antes da resposta:
+O sistema realiza cálculos de saldo, percentual comprometido e prazo estimado para gerar informações confiáveis antes de enviar a pergunta ao OLLAMA.
 
+Contexto estruturado no prompt:
+Um resumo financeiro é incluído no prompt enviado ao OLLAMA para permitir respostas personalizadas, educativas e simuladas.
+
+Exemplo de estrutura enviada ao modelo:
 ---
+Resumo Financeiro Atual:
+
+Renda mensal: R$ 8.000
+Despesas médias: R$ 5.200
+Saldo disponível: R$ 2.800
+
+Metas:
+- Quitar casa: faltam R$ 75.000, prazo 36 meses
+- Comprar carro: R$ 40.000, prazo 24 meses
+
+Perfil financeiro: Conservador
+
+O modelo então gera:
+- Orientações estratégicas
+- Alertas de risco
+- Simulações explicadas
+- Dicas educativas
 
 ## Exemplo de Contexto Montado
 
-> Mostre um exemplo de como os dados são formatados para o agente.
+Dados do Usuario:
 
-```
-Dados do Cliente:
-- Nome: João Silva
-- Perfil: Moderado
-- Saldo disponível: R$ 5.000
+Nome: João Silva
+Renda mensal: R$ 8.000
+Despesas fixas: R$ 4.500
+Despesas variáveis: R$ 700
+Saldo médio mensal: R$ 2.800
 
-Últimas transações:
-- 01/11: Supermercado - R$ 450
-- 03/11: Streaming - R$ 55
-...
-```
+Metas ativas:
+- Quitar casa: R$ 75.000 restantes, prazo 36 meses
+- Investir em curso profissional: R$ 12.000, prazo 12 meses
+
+Perfil de risco: Conservador
+Reserva de emergência: R$ 15.000
